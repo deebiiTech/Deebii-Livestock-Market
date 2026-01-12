@@ -5,13 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Deebii Livestock Market | Helvetas Partner</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --deebii-blue: #1a237e; --footer-brown: #5d4037; }
-        .market-card { transition: transform 0.3s; border-top: 5px solid #2ecc71; }
-        .market-card:hover { transform: translateY(-5px); }
+        .market-card { transition: all 0.3s ease; border-radius: 1.5rem; }
+        .market-card:hover { transform: translateY(-8px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
         .sidebar-active { background: #e8eaf6; border-left: 4px solid var(--deebii-blue); font-weight: bold; color: var(--deebii-blue); }
-        .login-bg { background: linear-gradient(135deg, #1a237e 0%, #5d4037 100%); }
-        /* Scrollbar styling for a cleaner look */
+        .modal-bg { background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); }
+        
+        .bg-loon { background: linear-gradient(to bottom right, #ffffff, #f0f3ff); border-top: 5px solid #3f51b5; }
+        .bg-hoolaa { background: linear-gradient(to bottom right, #ffffff, #f0f9ff); border-top: 5px solid #03a9f4; }
+        .bg-reee { background: linear-gradient(to bottom right, #ffffff, #fff7ed); border-top: 5px solid #f59e0b; }
+        .bg-gaala { background: linear-gradient(to bottom right, #ffffff, #f0fdf4); border-top: 5px solid #10b981; }
+        .bg-lukkuu { background: linear-gradient(to bottom right, #ffffff, #fff1f2); border-top: 5px solid #f43f5e; }
+
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
@@ -19,42 +26,75 @@
 </head>
 <body class="bg-gray-100 font-sans text-gray-900">
 
-    <div id="login-screen" class="fixed inset-0 z-[100] login-bg flex items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
-            <div class="text-center mb-8">
-                <div class="w-20 h-20 bg-[#1a237e] rounded-xl mx-auto mb-4 flex items-center justify-center text-white font-bold text-2xl shadow-lg overflow-hidden border-2 border-white">
-                    <img src="Logo.PNG" alt="DE" class="w-full h-full object-cover">
-                </div>
-                <h2 class="text-2xl font-bold text-gray-800">DEEBII TECH LOGIN</h2>
-                <p class="text-sm text-gray-500">Market Intelligence System</p>
-            </div>
-            <div class="space-y-4">
-                <div>
-                    <label class="text-xs font-semibold text-gray-600 uppercase">Username</label>
-                    <input type="text" id="username" placeholder="fkn. yabelo_admin" class="w-full p-3 mt-1 border rounded-lg outline-none focus:ring-2 focus:ring-[#1a237e] transition">
-                </div>
-                <div>
-                    <label class="text-xs font-semibold text-gray-600 uppercase">Password</label>
-                    <input type="password" id="password" placeholder="••••••••" class="w-full p-3 mt-1 border rounded-lg outline-none focus:ring-2 focus:ring-[#1a237e] transition">
-                </div>
-                <button onclick="handleLogin()" class="w-full bg-[#1a237e] text-white p-3 rounded-lg font-bold hover:bg-blue-900 shadow-lg transition transform active:scale-95">LOG IN</button>
-            </div>
-            <p id="login-error" class="text-red-500 text-xs mt-4 text-center hidden font-medium bg-red-50 p-2 rounded">Username ykn Password dogoggora!</p>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCzeW0zLkD6FNXpbxn7U9M5rilDQ8cEnJU",
+            authDomain: "deebii-market.firebaseapp.com",
+            databaseURL: "https://deebii-market-default-rtdb.firebaseio.com",
+            projectId: "deebii-market",
+            storageBucket: "deebii-market.firebasestorage.app",
+            messagingSenderId: "582654848501",
+            appId: "1:582654848501:web:955b6054eab4c19e2ac4bc",
+            measurementId: "G-2V8WDCV0GS"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        window.db = db;
+        window.dbRef = ref;
+        window.dbSet = set;
+        window.dbOnValue = onValue;
+    </script>
+
+    <div id="info-modal" class="fixed inset-0 z-[110] modal-bg hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6 md:p-10 relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 font-bold text-2xl">✕</button>
+            <div id="modal-content" class="prose prose-blue max-w-none"></div>
         </div>
     </div>
 
-    <div id="dashboard" class="hidden">
+    <div id="login-screen" class="fixed inset-0 z-[100] modal-bg hidden flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md relative">
+            <button onclick="toggleLogin()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold text-xl">✕</button>
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-[#1a237e] rounded-xl mx-auto mb-4 flex items-center justify-center text-white shadow-lg overflow-hidden border-2 border-white">
+                    <img src="Logo.PNG" alt="DE" class="w-full h-full object-cover">
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 uppercase">Admin Access</h2>
+                <p class="text-sm text-gray-500 font-medium">Data Clerk Login System</p>
+            </div>
+            <div class="space-y-4">
+                <input type="text" id="username" placeholder="Username" class="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-[#1a237e]">
+                <input type="password" id="password" placeholder="Password" class="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-[#1a237e]">
+                <button onclick="handleLogin()" class="w-full bg-[#1a237e] text-white p-3 rounded-lg font-bold hover:bg-blue-900 shadow-lg transition transform active:scale-95">LOG IN</button>
+            </div>
+            <p id="login-error" class="text-red-500 text-xs mt-4 text-center hidden font-medium bg-red-50 p-2 rounded">Username/Password Incorrect!</p>
+        </div>
+    </div>
+
+    <div id="dashboard">
         <header class="bg-[#1a237e] text-white p-4 sticky top-0 z-50 shadow-lg">
-            <div class="container mx-auto flex justify-between items-center">
+            <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-3">
-                    <div class="bg-white rounded p-1 flex items-center justify-center shadow-sm">
+                    <div class="bg-white rounded p-1 shadow-sm">
                         <img src="Logo.PNG" alt="Logo" class="h-10 w-auto object-contain">
                     </div>
                     <h1 class="text-lg md:text-xl font-bold tracking-tight uppercase italic">Deebii Livestock</h1>
                 </div>
-                <div class="flex gap-4 items-center">
-                    <span id="user-tag" class="hidden md:inline text-[10px] bg-blue-800 px-3 py-1 rounded-full border border-blue-400 font-bold uppercase tracking-widest text-blue-100"></span>
-                    <button onclick="location.reload()" class="bg-red-500 hover:bg-red-600 px-4 py-1.5 rounded text-xs transition font-bold shadow-md uppercase">Logout</button>
+
+                <nav class="flex gap-4 text-[11px] md:text-xs font-bold uppercase tracking-widest border-b md:border-b-0 border-blue-800 pb-2 md:pb-0">
+                    <button onclick="showAbout()" class="hover:text-yellow-400 transition">About</button>
+                    <button onclick="showHelp()" class="hover:text-yellow-400 transition">Help</button>
+                    <button onclick="showPrivacy()" class="hover:text-yellow-400 transition">Privacy</button>
+                </nav>
+
+                <div class="flex gap-3 items-center">
+                    <span id="user-tag" class="hidden lg:inline text-[10px] bg-green-600 px-3 py-1 rounded-full font-bold uppercase tracking-widest text-white">Guest View</span>
+                    <button id="auth-btn" onclick="toggleLogin()" class="bg-yellow-500 hover:bg-yellow-600 px-4 py-1.5 rounded text-xs transition font-bold shadow-md uppercase text-blue-900">Admin Login</button>
                 </div>
             </div>
         </header>
@@ -62,19 +102,18 @@
         <div class="flex flex-col md:flex-row min-h-screen">
             <aside class="w-full md:w-64 bg-white shadow-inner border-r border-gray-200 p-4">
                 <h3 class="font-bold text-gray-400 mb-4 border-b pb-2 tracking-widest uppercase text-[10px]">Aanaalee Booranaa</h3>
-                <div class="space-y-1 overflow-y-auto max-h-48 md:max-h-[calc(100vh-200px)] pr-2" id="woreda-list">
-                    </div>
+                <div class="space-y-1 overflow-y-auto max-h-48 md:max-h-[calc(100vh-200px)] pr-2" id="woreda-list"></div>
             </aside>
 
             <main class="flex-1 p-4 md:p-8">
                 <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
                     <div>
                         <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight" id="current-location">Yabelo Woreda</h2>
-                        <p class="text-sm text-gray-500 mt-1 italic font-medium">Market Intelligence Dashboard | <span class="text-green-600 font-bold">Helvetas Partner</span></p>
+                        <p class="text-sm text-gray-500 mt-1 italic font-medium">Market Information Dashboard | <span class="text-green-600 font-bold tracking-wide">Helvetas Partner</span></p>
                     </div>
                     <div class="w-full lg:w-auto">
                         <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Filter Beeylada</label>
-                        <select id="beeylada-filter" onchange="filterMarket()" class="w-full lg:w-64 p-2.5 border rounded-xl bg-white shadow-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+                        <select id="beeylada-filter" onchange="filterMarket()" class="w-full lg:w-64 p-2.5 border rounded-xl bg-white shadow-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500">
                             <option value="All">Hunda (All Categories)</option>
                             <option value="Loon">Loon (Cattle)</option>
                             <option value="Hoolaa">Hoolaa (Sheep)</option>
@@ -85,9 +124,7 @@
                         </select>
                     </div>
                 </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 pb-20" id="market-grid">
-                    </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 pb-20" id="market-grid"></div>
             </main>
         </div>
 
@@ -95,18 +132,17 @@
             <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
                 <div class="flex items-center gap-5">
                     <div class="w-20 h-20 bg-gray-300 rounded-full border-4 border-yellow-500 overflow-hidden shadow-2xl">
-                        <img src="Profile.JPG" alt="Kajela Hambisa" class="w-full h-full object-cover">
+                        <img src="Profile.JPG" alt="Kajela" class="w-full h-full object-cover">
                     </div>
                     <div>
                         <p class="text-xl font-bold text-yellow-400 tracking-tight">Kajela Hambisa</p>
-                        <p class="text-sm text-gray-300 italic font-medium">Market Specialist & Developer</p>
+                        <p class="text-sm text-gray-300 italic">Market Specialist & Developer</p>
                         <p class="text-xs text-yellow-200 mt-1 font-mono">📞 0910166955</p>
                     </div>
                 </div>
-                <div class="text-center md:text-right space-y-2">
-                    <p class="font-bold italic text-gray-100 text-sm">Official Partner of Helvetas Market Program</p>
-                    <div class="h-px bg-brown-400 w-full opacity-20"></div>
-                    <p class="text-[10px] text-gray-400 tracking-[0.3em] uppercase font-black">© 2026 BORANA LIVESTOCK INTELLIGENCE</p>
+                <div class="text-center md:text-right">
+                    <p class="font-bold italic text-gray-100 text-sm">"Real-time Livestock Intelligence for the World"</p>
+                    <p class="text-[10px] text-gray-400 tracking-[0.2em] uppercase font-black mt-2">©2026 DEEBII LIVESTOCK MARKET</p>
                 </div>
             </div>
         </footer>
@@ -133,40 +169,77 @@
 
         const aanaalee = ["Yabelo Woreda", "Yabelo City", "Gomole Woreda", "Elwaye Woreda", "Taltale Woreda", "Dubuluq Woreda", "Dillo Woreda", "Dire Woreda", "Miyo Woreda", "Guchi Woreda", "Moyale Woreda", "Moyale City"];
         
-        const marketData = [
-            // LOON (7 Categories)
-            { category: 'Loon', sub: 'Sangaa', min: 0, mid: 0, max: 0 },
-            { category: 'Loon', sub: 'Korma', min: 0, mid: 0, max: 0 },
-            { category: 'Loon', sub: 'Hawwicha/Sa\'a', min: 0, mid: 0, max: 0 },
-            { category: 'Loon', sub: 'Jibicha', min: 0, mid: 0, max: 0 },
-            { category: 'Loon', sub: 'Goromsa', min: 0, mid: 0, max: 0 },
-            { category: 'Loon', sub: 'Jabbii Kormaa', min: 0, mid: 0, max: 0 },
-            { category: 'Loon', sub: 'Jabbii Dhalaa', min: 0, mid: 0, max: 0 },
-            
-            // HOOLAA (4 Categories)
-            { category: 'Hoolaa', sub: 'Elemoo', min: 0, mid: 0, max: 0 },
-            { category: 'Hoolaa', sub: 'Tumaalessa', min: 0, mid: 0, max: 0 },
-            { category: 'Hoolaa', sub: 'Hawwicha', min: 0, mid: 0, max: 0 },
-            { category: 'Hoolaa', sub: 'Goromsa', min: 0, mid: 0, max: 0 },
+        const categoryIcons = {
+            'Loon': 'fa-cow',
+            'Hoolaa': 'fa-sheep',
+            "Re'ee": 'fa-hand-holding-hand',
+            'Gaala': 'fa-hippo',
+            'Lukkuu Naannoo': 'fa-egg',
+            'Lukkuu Fooyya\'aa': 'fa-drumstick-bite'
+        };
 
-            // RE'EE (4 Categories)
-            { category: 'Re\'ee', sub: 'Tumaalessa', min: 0, mid: 0, max: 0 },
-            { category: 'Re\'ee', sub: 'Hawwittii', min: 0, mid: 0, max: 0 },
-            { category: 'Re\'ee', sub: 'Korbeessa', min: 0, mid: 0, max: 0 },
-            { category: 'Re\'ee', sub: 'Goromtoo', min: 0, mid: 0, max: 0 },
-
-            // GAALA (4 Categories)
-            { category: 'Gaala', sub: 'Korma', min: 0, mid: 0, max: 0 },
-            { category: 'Gaala', sub: 'Hawwicha', min: 0, mid: 0, max: 0 },
-            { category: 'Gaala', sub: 'Jibicha', min: 0, mid: 0, max: 0 },
-            { category: 'Gaala', sub: 'Goromsa', min: 0, mid: 0, max: 0 },
-
-            // LUKKUU (4 Categories)
-            { category: 'Lukkuu Naannoo', sub: 'Korma', min: 0, mid: 0, max: 0 },
-            { category: 'Lukkuu Naannoo', sub: 'Dhaltuu', min: 0, mid: 0, max: 0 },
-            { category: 'Lukkuu Fooyya\'aa', sub: 'Korma', min: 0, mid: 0, max: 0 },
-            { category: 'Lukkuu Fooyya\'aa', sub: 'Dhaltuu', min: 0, mid: 0, max: 0 }
+        const marketDataTemplate = [
+            { category: 'Loon', sub: 'Sangaa', class: 'bg-loon' },
+            { category: 'Loon', sub: 'Korma', class: 'bg-loon' },
+            { category: 'Loon', sub: 'Hawwicha/Sa\'a', class: 'bg-loon' },
+            { category: 'Loon', sub: 'Jibicha', class: 'bg-loon' },
+            { category: 'Loon', sub: 'Goromsa', class: 'bg-loon' },
+            { category: 'Loon', sub: 'Jabbii Kormaa', class: 'bg-loon' },
+            { category: 'Loon', sub: 'Jabbii Dhalaa', class: 'bg-loon' },
+            { category: 'Hoolaa', sub: 'Elemoo', class: 'bg-hoolaa' },
+            { category: 'Hoolaa', sub: 'Tumaalessa', class: 'bg-hoolaa' },
+            { category: 'Hoolaa', sub: 'Hawwicha', class: 'bg-hoolaa' },
+            { category: 'Hoolaa', sub: 'Goromsa', class: 'bg-hoolaa' },
+            { category: "Re'ee", sub: 'Tumaalessa', class: 'bg-reee' },
+            { category: "Re'ee", sub: 'Hawwittii', class: 'bg-reee' },
+            { category: "Re'ee", sub: 'Korbeessa', class: 'bg-reee' },
+            { category: "Re'ee", sub: 'Goromtoo', class: 'bg-reee' },
+            { category: 'Gaala', sub: 'Korma', class: 'bg-gaala' },
+            { category: 'Gaala', sub: 'Hawwicha', class: 'bg-gaala' },
+            { category: 'Gaala', sub: 'Jibicha', class: 'bg-gaala' },
+            { category: 'Gaala', sub: 'Goromsa', class: 'bg-gaala' },
+            { category: 'Lukkuu Naannoo', sub: 'Korma', class: 'bg-lukkuu' },
+            { category: 'Lukkuu Naannoo', sub: 'Dhaltuu', class: 'bg-lukkuu' },
+            { category: 'Lukkuu Fooyya\'aa', sub: 'Korma', class: 'bg-lukkuu' },
+            { category: 'Lukkuu Fooyya\'aa', sub: 'Dhaltuu', class: 'bg-lukkuu' }
         ];
+
+        function openModal(content) {
+            document.getElementById('modal-content').innerHTML = content;
+            document.getElementById('info-modal').classList.remove('hidden');
+        }
+        function closeModal() { document.getElementById('info-modal').classList.add('hidden'); }
+
+        function showAbout() {
+            const content = `<div class="space-y-6">
+                <section>
+                    <h2 class="text-3xl font-black text-blue-900 border-b-2 border-yellow-500 pb-2">DEEBII LIVESTOCK</h2>
+                    <div class="grid md:grid-cols-2 gap-8 mt-6 text-sm">
+                        <div>
+                            <h3 class="font-bold text-lg text-blue-800">📌 About System (Afaan Oromoo)</h3>
+                            <p class="text-gray-600 leading-relaxed mt-2 italic font-semibold">"Systemiin kun daldala beeyladaa ammayyeessuuf kan qophaaye dha."</p>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-blue-800">📌 About System (English)</h3>
+                            <p class="text-gray-600 leading-relaxed mt-2">DEEBII is a specialized platform for livestock market data in Borana Zone.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>`;
+            openModal(content);
+        }
+
+        function showHelp() {
+            const content = `<h2 class="text-2xl font-bold">Help Center</h2><p class="mt-4">Select a Woreda to see market prices. Admins must login to edit.</p>`;
+            openModal(content);
+        }
+
+        function showPrivacy() {
+            const content = `<h2 class="text-2xl font-bold">Privacy Policy</h2><p class="mt-4">Data is used for market transparency only.</p>`;
+            openModal(content);
+        }
+
+        function toggleLogin() { document.getElementById('login-screen').classList.toggle('hidden'); }
 
         function handleLogin() {
             const u = document.getElementById('username').value;
@@ -174,9 +247,11 @@
             if (users[u] && users[u].pass === p) {
                 currentUser = users[u];
                 document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('dashboard').classList.remove('hidden');
-                document.getElementById('user-tag').innerText = "USER: " + u;
-                initApp();
+                document.getElementById('user-tag').innerText = "Logged in: " + u.toUpperCase();
+                document.getElementById('user-tag').classList.replace('bg-green-600', 'bg-blue-600');
+                document.getElementById('auth-btn').innerText = "Logout";
+                document.getElementById('auth-btn').onclick = () => location.reload();
+                filterMarket();
             } else {
                 document.getElementById('login-error').classList.remove('hidden');
             }
@@ -188,7 +263,7 @@
             aanaalee.forEach((aana, index) => {
                 const div = document.createElement('div');
                 div.className = `p-3 cursor-pointer hover:bg-indigo-50 rounded-lg text-sm transition-all duration-200 ${index===0?'sidebar-active':''}`;
-                div.innerText = aana;
+                div.innerHTML = `<i class="fa fa-location-dot text-[10px] mr-2 opacity-50"></i> ${aana}`;
                 div.onclick = () => {
                     document.querySelectorAll('#woreda-list div').forEach(d => d.classList.remove('sidebar-active'));
                     div.classList.add('sidebar-active');
@@ -197,66 +272,76 @@
                 };
                 woredaDiv.appendChild(div);
             });
-            filterMarket();
+            setTimeout(() => filterMarket(), 1000);
         }
 
         function filterMarket() {
+            if (!window.dbOnValue) return;
             const filter = document.getElementById('beeylada-filter').value;
             const grid = document.getElementById('market-grid');
             const activeWoreda = document.getElementById('current-location').innerText;
-            grid.innerHTML = '';
-            
-            const filtered = filter === 'All' ? marketData : marketData.filter(d => d.category === filter);
+            const woredaKey = activeWoreda.replace(/\s+/g, '_');
+            const dataRef = window.dbRef(window.db, 'markets/' + woredaKey);
 
-            filtered.forEach(item => {
-                const canEdit = (currentUser.role === 'admin' || currentUser.woreda === activeWoreda);
-                
-                grid.innerHTML += `
-                    <div class="market-card bg-white rounded-2xl shadow-sm p-6 border border-gray-100 hover:shadow-xl relative overflow-hidden">
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="text-[10px] font-black bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full uppercase tracking-widest">${item.category}</span>
-                            <button onclick="updateData('${item.sub}')" 
-                                class="text-xs font-bold py-1 px-3 rounded-lg transition-colors ${canEdit ? 'bg-green-50 text-green-700 hover:bg-green-100' : 'bg-gray-50 text-gray-400 cursor-not-allowed'}">
-                                ${canEdit ? 'Update Price' : 'Read Only'}
-                            </button>
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-800">${item.sub}</h3>
-                        <div class="mt-5 space-y-3">
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="text-gray-400 font-medium italic">Gatii Xiqqaa:</span>
-                                <span class="font-bold text-red-500 bg-red-50 px-2 py-1 rounded">ETB ${item.min.toLocaleString()}</span>
+            window.dbOnValue(dataRef, (snapshot) => {
+                const liveData = snapshot.val() || {};
+                grid.innerHTML = '';
+                marketDataTemplate.forEach(item => {
+                    if (filter !== 'All' && item.category !== filter) return;
+                    const subKey = item.sub.replace(/[.\/]/g, '_');
+                    const prices = liveData[subKey] || { min: 0, mid: 0, max: 0 };
+                    const canEdit = currentUser && (currentUser.role === 'admin' || currentUser.woreda === activeWoreda);
+                    const icon = categoryIcons[item.category] || 'fa-paw';
+                    
+                    grid.innerHTML += `
+                        <div class="market-card ${item.class} p-6 relative overflow-hidden shadow-sm border border-gray-100">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="w-10 h-10 bg-white/80 rounded-full flex items-center justify-center shadow-inner">
+                                    <i class="fa ${icon} text-gray-700"></i>
+                                </div>
+                                <button onclick="updateData('${item.sub}')" 
+                                    class="text-[10px] font-black py-1 px-4 rounded-full transition-all shadow-sm ${canEdit ? 'bg-white text-blue-700 hover:scale-105' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}">
+                                    ${canEdit ? '<i class="fa fa-pen mr-1"></i> EDIT' : '<i class="fa fa-lock mr-1"></i> READ'}
+                                </button>
                             </div>
-                            <div class="flex justify-between items-center text-sm p-2 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                                <span class="text-gray-600 font-bold uppercase text-[10px]">Giddu-galeessa:</span>
-                                <span class="font-black text-orange-600">ETB ${item.mid.toLocaleString()}</span>
+                            <span class="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1 block">${item.category}</span>
+                            <h3 class="text-2xl font-bold text-gray-800">${item.sub}</h3>
+                            <div class="mt-6 space-y-3">
+                                <div class="flex justify-between items-center text-xs font-bold text-gray-500">
+                                    <span>MIN:</span> <span class="text-red-600">ETB ${prices.min.toLocaleString()}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm p-3 bg-white rounded-xl shadow-sm">
+                                    <span class="font-black text-blue-900 text-[10px]">AVG:</span>
+                                    <span class="font-black text-indigo-700">ETB ${prices.mid.toLocaleString()}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-xs font-bold text-gray-500">
+                                    <span>MAX:</span> <span class="text-green-600">ETB ${prices.max.toLocaleString()}</span>
+                                </div>
                             </div>
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="text-gray-400 font-medium italic">Gatii Guddaa:</span>
-                                <span class="font-bold text-green-600 bg-green-50 px-2 py-1 rounded">ETB ${item.max.toLocaleString()}</span>
-                            </div>
-                        </div>
-                    </div>`;
+                        </div>`;
+                });
             });
         }
 
         function updateData(sub) {
             const activeWoreda = document.getElementById('current-location').innerText;
+            if (!currentUser) { alert("Dhiifama! Admin Login godhuu qabda."); return; }
             if (currentUser.role === 'admin' || currentUser.woreda === activeWoreda) {
-                const nMin = prompt(`${sub} (${activeWoreda}) - Galchi Gatii Xiqqaa:`, 0);
-                const nMid = prompt(`${sub} (${activeWoreda}) - Galchi Gatii Giddu-galeessaa:`, 0);
-                const nMax = prompt(`${sub} (${activeWoreda}) - Galchi Gatii Guddaa:`, 0);
-                
+                const nMin = prompt(`${sub} - Gatii Xiqqaa:`, 0);
+                const nMid = prompt(`${sub} - Gatii Giddu-galeessaa:`, 0);
+                const nMax = prompt(`${sub} - Gatii Guddaa:`, 0);
                 if(nMin !== null && nMid !== null && nMax !== null) {
-                    const item = marketData.find(d => d.sub === sub);
-                    item.min = Number(nMin); 
-                    item.mid = Number(nMid); 
-                    item.max = Number(nMax);
-                    filterMarket();
+                    const woredaKey = activeWoreda.replace(/\s+/g, '_');
+                    const subKey = sub.replace(/[.\/]/g, '_');
+                    window.dbSet(window.dbRef(window.db, `markets/${woredaKey}/${subKey}`), {
+                        min: Number(nMin), mid: Number(nMid), max: Number(nMax)
+                    }).then(() => alert("Ragaan Live ta'ee jira!"));
                 }
             } else {
-                alert(`Dhiifama! Ati ragaa ${activeWoreda} jijjiiruuf hayyama hin qabdu.`);
+                alert(`Hayyama hin qabdu! Aanaan kee: ${currentUser.woreda}`);
             }
         }
+        initApp();
     </script>
 </body>
 </html>
