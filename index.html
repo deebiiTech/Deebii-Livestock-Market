@@ -169,7 +169,6 @@
 
         const aanaalee = ["Yabelo Woreda", "Yabelo City", "Gomole Woreda", "Elwaye Woreda", "Taltale Woreda", "Dubuluq Woreda", "Dillo Woreda", "Dire Woreda", "Miyo Woreda", "Guchi Woreda", "Moyale Woreda", "Moyale City"];
         
-        // MAQAA FAKKIIWWAN FOLDER KEESSAA (SIRREEFFAME)
         const categoryIcons = {
             'Loon': 'loon.jpg',
             'Hoolaa': 'hoolaa.jpg',
@@ -275,11 +274,11 @@
                 grid.innerHTML = '';
                 marketDataTemplate.forEach(item => {
                     if (filter !== 'All' && item.category !== filter) return;
-                    const subKey = item.sub.replace(/[.\/]/g, '_');
+                    // Fix: subKey conversion for Firebase paths
+                    const subKey = item.sub.replace(/[\/\.]/g, '_');
                     const prices = liveData[subKey] || { min: 0, mid: 0, max: 0 };
                     const canEdit = currentUser && (currentUser.role === 'admin' || currentUser.woreda === activeWoreda);
                     
-                    // MAQAA FAKKII FOLDER KEESSAA (SIRREEFFAME)
                     const imgName = categoryIcons[item.category] || 'Logo.PNG';
                     
                     grid.innerHTML += `
@@ -321,7 +320,8 @@
                 const nMax = prompt(`${sub} - Gatii Guddaa:`, 0);
                 if(nMin !== null && nMid !== null && nMax !== null) {
                     const woredaKey = activeWoreda.replace(/\s+/g, '_');
-                    const subKey = sub.replace(/[.\/]/g, '_');
+                    // Fix: sanitize subKey for writing to Firebase
+                    const subKey = sub.replace(/[\/\.]/g, '_');
                     window.dbSet(window.dbRef(window.db, `markets/${woredaKey}/${subKey}`), {
                         min: Number(nMin), mid: Number(nMid), max: Number(nMax)
                     }).then(() => alert("Ragaan Live ta'ee jira!"));
