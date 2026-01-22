@@ -152,13 +152,16 @@
                 </div>
 
                 <div class="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-blue-900 text-white p-6 rounded-2xl shadow-lg border-l-8 border-yellow-500">
+                    <div id="analysis-box" class="bg-blue-900 text-white p-6 rounded-2xl shadow-lg border-l-8 border-yellow-500 relative">
+                        <button id="edit-analysis-btn" onclick="updateAnalysis()" class="hidden absolute top-4 right-4 bg-white/20 hover:bg-white/40 p-2 rounded-lg text-xs">
+                            <i class="fa fa-pen"></i> Edit Analysis
+                        </button>
                         <h4 class="text-sm font-black uppercase tracking-widest mb-2 opacity-80">Xiinxala Gabaa (Market Analysis)</h4>
                         <p class="text-lg font-bold">Haala gabaa <span id="ana-name" class="text-yellow-400">Yabelo</span> har'aa:</p>
                         <div class="mt-4 flex gap-6">
-                            <div class="text-center"><p class="text-[10px] uppercase opacity-60">Supply</p><p class="font-bold">Olaana</p></div>
-                            <div class="text-center"><p class="text-[10px] uppercase opacity-60">Demand</p><p class="font-bold text-green-400">Giddu-galeessa</p></div>
-                            <div class="text-center"><p class="text-[10px] uppercase opacity-60">Trend</p><p class="font-bold text-yellow-400">Dhaabbataa</p></div>
+                            <div class="text-center"><p class="text-[10px] uppercase opacity-60">Supply</p><p id="ana-supply" class="font-bold">Olaana</p></div>
+                            <div class="text-center"><p class="text-[10px] uppercase opacity-60">Demand</p><p id="ana-demand" class="font-bold text-green-400">Giddu-galeessa</p></div>
+                            <div class="text-center"><p class="text-[10px] uppercase opacity-60">Trend</p><p id="ana-trend" class="font-bold text-yellow-400">Dhaabbataa</p></div>
                         </div>
                     </div>
                 </div>
@@ -197,7 +200,7 @@
 
     <script>
         let currentUser = null;
-        let currentExcelData = []; // Store data for Excel
+        let currentExcelData = [];
 
         const users = {
             "admin_master": {pass: "admin@2026", role: "admin", woreda: "All"},
@@ -259,7 +262,7 @@
         function closeModal() { document.getElementById('info-modal').classList.add('hidden'); }
 
         function showAbout() {
-            const content = `<div class="bg-gradient-to-br from-indigo-900 to-blue-800 text-white p-10"><h2 class="text-4xl font-black mb-4 flex items-center gap-3"><i class="fa fa-info-circle text-yellow-400"></i> About Deebii Market</h2><p class="text-blue-100 text-lg italic">"Connecting Borana Pastoralists to Fair Market Intelligence."</p></div><div class="p-10 space-y-8"><section class="grid md:grid-cols-2 gap-8"><div><h3 class="text-xl font-bold text-blue-900 mb-3 border-b-2 border-yellow-500 inline-block">Maaliif Deebii? (Why Deebii?)</h3><p class="text-gray-600 leading-relaxed"><strong>Deebii Market</strong> systemii ragaa gabaa beeyladaa battalatti (real-time) wal-qunnamsiisu yoo ta'u, daldala beeyladaa Booranaa ammayyeessuuf kan qophaaye dha. Systemiin kun dallaalaa gidduudhaa balleessuun horsiise bulaan gatii haqaa akka argatu gargaara.</p></div><div><h3 class="text-xl font-bold text-blue-900 mb-3 border-b-2 border-yellow-500 inline-block">Who Built It?</h3><p class="text-gray-600 leading-relaxed">Systemiin kun kan ijaarame <strong>Kajela Hambisa</strong>, Software Developer, Aothor, Teacher, Graphics Designer, Web developer fi Market Specialist, dhaan yoo ta'u, kaayyoon isaa teeknoolojii fayyadamuun jireenya hawaasaa fooyyeessuu dha.</p></div></section></div>`;
+            const content = `<div class="bg-gradient-to-br from-indigo-900 to-blue-800 text-white p-10"><h2 class="text-4xl font-black mb-4 flex items-center gap-3"><i class="fa fa-info-circle text-yellow-400"></i> About Deebii Market</h2><p class="text-blue-100 text-lg italic">"Connecting Borana Pastoralists to Fair Market Intelligence."</p></div><div class="p-10 space-y-8"><section class="grid md:grid-cols-2 gap-8"><div><h3 class="text-xl font-bold text-blue-900 mb-3 border-b-2 border-yellow-500 inline-block">Maaliif Deebii? (Why Deebii?)</h3><p class="text-gray-600 leading-relaxed"><strong>Deebii Market</strong> systemii ragaa gabaa beeyladaa battalatti (real-time) wal-qunnamsiisu yoo ta'u, daldala beeyladaa Booranaa ammayyeessuuf kan qophaaye dha. Systemiin kun dallaalaa gidduudhaa balleessuun horsiise bulaan gatii haqaa akka argatu gargaara.</p></div><div><h3 class="text-xl font-bold text-blue-900 mb-3 border-b-2 border-yellow-500 inline-block">Who Built It?</h3><p class="text-gray-600 leading-relaxed">Systemiin kun kan ijaarame <strong>Kajela Hambisa</strong>, Software Developer, Author, Teacher, Graphics Designer, Web developer fi Market Specialist, dhaan yoo ta'u, kaayyoon isaa teeknoolojii fayyadamuun jireenya hawaasaa fooyyeessuu dha.</p></div></section></div>`;
             openModal(content);
         }
 
@@ -269,42 +272,7 @@
         }
 
         function showPrivacy() {
-            const content = `
-            <div class="bg-gradient-to-br from-green-800 to-teal-700 text-white p-10">
-                <h2 class="text-4xl font-black mb-4 flex items-center gap-3"><i class="fa fa-shield-alt"></i> Privacy & Data Policy</h2>
-                <p class="text-green-100 text-lg">Eegumsa ragaa, mirgaa fi itti gaafatamummaa systemichaa.</p>
-            </div>
-            <div class="p-10 space-y-8">
-                <div class="grid md:grid-cols-3 gap-6">
-                    <div class="bg-blue-50 p-6 rounded-2xl border-t-4 border-blue-900">
-                        <h4 class="font-bold text-blue-900 mb-3 uppercase tracking-wider">🛠 Master Admin</h4>
-                        <ul class="text-xs space-y-2 text-gray-700 leading-relaxed">
-                            <li>• <b>To'annoo Guutuu:</b> Systemicha hordofuu fi bifa isaa jijjiiruu.</li>
-                            <li>• <b>User Management:</b> User accounts (Clerks) qopheessuu fi eeyyamuu.</li>
-                            <li>• <b>Data Integrity:</b> Ragaalee hunda qulqullinaan eeguu fi backup qabachuu.</li>
-                        </ul>
-                    </div>
-                    <div class="bg-orange-50 p-6 rounded-2xl border-t-4 border-orange-500">
-                        <h4 class="font-bold text-orange-900 mb-3 uppercase tracking-wider">📝 Data Clerk</h4>
-                        <ul class="text-xs space-y-2 text-gray-700 leading-relaxed">
-                            <li>• <b>Ragaa Galchuu:</b> Aanaa ramadaman irratti gatii beeyladaa sirrii ta'e battalatti galchuu.</li>
-                            <li>• <b>Amanamummaa:</b> Gatii sobaa (fake price) galchuun dhorkaa dha; tarkaanfiin seeraa ni fudhatama.</li>
-                            <li>• <b>Eegumsa Password:</b> Password eenyuufiyyuu dabarsanii kennuun dhorkaadha.</li>
-                        </ul>
-                    </div>
-                    <div class="bg-green-50 p-6 rounded-2xl border-t-4 border-green-600">
-                        <h4 class="font-bold text-green-900 mb-3 uppercase tracking-wider">👥 Public/Users</h4>
-                        <ul class="text-xs space-y-2 text-gray-700 leading-relaxed">
-                            <li>• <b>Mirga Argachuu:</b> Ragaa gabaa bilisaan argachuu fi fayyadamuu.</li>
-                            <li>• <b>Itti Fayyadama:</b> Ragaa kana dhimma daldalaa fi qorannoof qofa fayyadamuu.</li>
-                            <li>• <b>Ibsa:</b> Gatiin kun kan gabaa nannoo sanaa ta'uu hubatanii murtee irra ga'uu.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="bg-gray-100 p-4 rounded-xl text-[10px] text-gray-500 italic">
-                    Note: Deebii Livestock Market ragaa gabaa giddu-galeessa godhata; jijjiirama gabaa yeroo sanaa wajjiin wal-simuu danda'a.
-                </div>
-            </div>`;
+            const content = `<div class="bg-gradient-to-br from-green-800 to-teal-700 text-white p-10"><h2 class="text-4xl font-black mb-4 flex items-center gap-3"><i class="fa fa-shield-alt"></i> Privacy & Data Policy</h2><p class="text-green-100 text-lg">Eegumsa ragaa, mirgaa fi itti gaafatamummaa systemichaa.</p></div><div class="p-10 space-y-8"><div class="grid md:grid-cols-3 gap-6"><div class="bg-blue-50 p-6 rounded-2xl border-t-4 border-blue-900"><h4 class="font-bold text-blue-900 mb-3 uppercase tracking-wider">🛠 Master Admin</h4><ul class="text-xs space-y-2 text-gray-700 leading-relaxed"><li>• <b>To'annoo Guutuu:</b> Systemicha hordofuu fi bifa isaa jijjiiruu.</li><li>• <b>User Management:</b> User accounts (Clerks) qopheessuu fi eeyyamuu.</li><li>• <b>Data Integrity:</b> Ragaalee hunda qulqullinaan eeguu fi backup qabachuu.</li></ul></div><div class="bg-orange-50 p-6 rounded-2xl border-t-4 border-orange-500"><h4 class="font-bold text-orange-900 mb-3 uppercase tracking-wider">📝 Data Clerk</h4><ul class="text-xs space-y-2 text-gray-700 leading-relaxed"><li>• <b>Ragaa Galchuu:</b> Aanaa ramadaman irratti gatii beeyladaa sirrii ta'e battalatti galchuu.</li><li>• <b>Amanamummaa:</b> Gatii sobaa (fake price) galchuun dhorkaa dha; tarkaanfiin seeraa ni fudhatama.</li><li>• <b>Eegumsa Password:</b> Password eenyuufiyyuu dabarsanii kennuun dhorkaadha.</li></ul></div><div class="bg-green-50 p-6 rounded-2xl border-t-4 border-green-600"><h4 class="font-bold text-green-900 mb-3 uppercase tracking-wider">👥 Public/Users</h4><ul class="text-xs space-y-2 text-gray-700 leading-relaxed"><li>• <b>Mirga Argachuu:</b> Ragaa gabaa bilisaan argachuu fi fayyadamuu.</li><li>• <b>Itti Fayyadama:</b> Ragaa kana dhimma daldalaa fi qorannoof qofa fayyadamuu.</li><li>• <b>Ibsa:</b> Gatiin kun kan gabaa nannoo sanaa ta'uu hubatanii murtee irra ga'uu.</li></ul></div></div><div class="bg-gray-100 p-4 rounded-xl text-[10px] text-gray-500 italic">Note: Deebii Livestock Market ragaa gabaa giddu-galeessa godhata; jijjiirama gabaa yeroo sanaa wajjiin wal-simuu danda'a.</div></div>`;
             openModal(content);
         }
 
@@ -320,6 +288,7 @@
                 document.getElementById('user-tag').classList.replace('bg-green-600', 'bg-blue-600');
                 document.getElementById('auth-btn').innerText = "Logout";
                 document.getElementById('auth-btn').onclick = () => location.reload();
+                document.getElementById('edit-analysis-btn').classList.remove('hidden');
                 filterMarket();
             } else {
                 document.getElementById('login-error').classList.remove('hidden');
@@ -351,29 +320,32 @@
             const grid = document.getElementById('market-grid');
             const activeWoreda = document.getElementById('current-location').innerText;
             const woredaKey = activeWoreda.replace(/\s+/g, '_');
-            const dataRef = window.dbRef(window.db, 'markets/' + woredaKey);
+            
+            // Sync Analysis Data
+            window.dbOnValue(window.dbRef(window.db, 'analysis/' + woredaKey), (snap) => {
+                const a = snap.val() || { supply: "Olaana", demand: "Giddu-galeessa", trend: "Dhaabbataa" };
+                document.getElementById('ana-supply').innerText = a.supply;
+                document.getElementById('ana-demand').innerText = a.demand;
+                document.getElementById('ana-trend').innerText = a.trend;
+            });
 
+            // Sync Market Cards
+            const dataRef = window.dbRef(window.db, 'markets/' + woredaKey);
             window.dbOnValue(dataRef, (snapshot) => {
                 const liveData = snapshot.val() || {};
                 grid.innerHTML = '';
-                currentExcelData = []; // Reset for new selection
+                currentExcelData = [];
 
                 marketDataTemplate.forEach(item => {
                     if (filter !== 'All' && item.category !== filter) return;
                     const subKey = item.sub.replace(/[\/\.]/g, '_');
                     const prices = liveData[subKey] || { min: 0, mid: 0, max: 0 };
                     const canEdit = currentUser && (currentUser.role === 'admin' || currentUser.woreda === activeWoreda);
-                    
                     const imgName = categoryIcons[item.category] || 'Logo.PNG';
 
-                    // Collect data for Excel
                     currentExcelData.push({
-                        "Aanaa": activeWoreda,
-                        "Category": item.category,
-                        "Sub": item.sub,
-                        "Min Price": prices.min,
-                        "Mid Price": prices.mid,
-                        "Max Price": prices.max,
+                        "Aanaa": activeWoreda, "Category": item.category, "Sub": item.sub,
+                        "Min Price": prices.min, "Mid Price": prices.mid, "Max Price": prices.max,
                         "Date": new Date().toLocaleDateString()
                     });
                     
@@ -407,12 +379,21 @@
             });
         }
 
-        // Export Function Added
-        window.exportToExcel = function() {
-            if (currentExcelData.length === 0) {
-                alert("Ragaan download ta'u hin jiru!");
-                return;
+        window.updateAnalysis = function() {
+            const activeWoreda = document.getElementById('current-location').innerText;
+            const woredaKey = activeWoreda.replace(/\s+/g, '_');
+            const s = prompt("Supply (Gatii Dhiyeessii):", "Olaana");
+            const d = prompt("Demand (Barbaacha):", "Giddu-galeessa");
+            const t = prompt("Trend (Haala adeemsaa):", "Dhaabbataa");
+            
+            if(s && d && t) {
+                window.dbSet(window.dbRef(window.db, 'analysis/' + woredaKey), { supply: s, demand: d, trend: t })
+                .then(() => alert("Xiinxalli gabaa uppdate ta'eera!"));
             }
+        }
+
+        window.exportToExcel = function() {
+            if (currentExcelData.length === 0) { alert("Ragaan download ta'u hin jiru!"); return; }
             const ws = XLSX.utils.json_to_sheet(currentExcelData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Gabaa_Data");
