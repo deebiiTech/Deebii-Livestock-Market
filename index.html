@@ -88,37 +88,32 @@
 
     <div id="dashboard">
         <header class="bg-[#1a237e] text-white p-4 sticky top-0 z-50 shadow-lg">
-    <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-        
-        <div class="flex items-center gap-3">
-            <div class="bg-white rounded p-1 shadow-sm">
-                <img src="Logo.PNG" alt="Logo" class="h-10 w-auto object-contain">
+            <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white rounded p-1 shadow-sm">
+                        <img src="Logo.PNG" alt="Logo" class="h-10 w-auto object-contain">
+                    </div>
+                    <h1 class="text-lg md:text-xl font-bold tracking-tight uppercase italic">Deebii Livestock Market</h1>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="bg-white rounded p-1 shadow-sm">
+                        <img src="helvetas logo.jfif" alt="Helvetas" class="h-10 w-auto object-contain">
+                    </div>
+                    <div class="bg-white rounded p-1 shadow-sm">
+                        <img src="borana trade logo.jfif" alt="Borana Trade" class="h-10 w-auto object-contain">
+                    </div>
+                </div>
+                <nav class="flex gap-6 text-[11px] md:text-xs font-bold uppercase tracking-widest border-b md:border-b-0 border-blue-800 pb-2 md:pb-0">
+                    <button onclick="showAbout()" class="hover:text-yellow-400 transition flex items-center gap-1"><i class="fa fa-info-circle"></i> About</button>
+                    <button onclick="showHelp()" class="hover:text-yellow-400 transition flex items-center gap-1"><i class="fa fa-question-circle"></i> Help</button>
+                    <button onclick="showPrivacy()" class="hover:text-yellow-400 transition flex items-center gap-1"><i class="fa fa-shield-alt"></i> Privacy</button>
+                </nav>
+                <div class="flex gap-3 items-center">
+                    <span id="user-tag" class="hidden lg:inline text-[10px] bg-green-600 px-3 py-1 rounded-full font-bold uppercase tracking-widest text-white">Guest View</span>
+                    <button id="auth-btn" onclick="toggleLogin()" class="bg-yellow-500 hover:bg-yellow-600 px-4 py-1.5 rounded text-xs transition font-bold shadow-md uppercase text-blue-900">Admin Login</button>
+                </div>
             </div>
-            <h1 class="text-lg md:text-xl font-bold tracking-tight uppercase italic">Deebii Livestock Market</h1>
-        </div>
-
-        <div class="flex items-center gap-2">
-            <div class="bg-white rounded p-1 shadow-sm">
-                <img src="helvetas logo.jfif" alt="Helvetas" class="h-10 w-auto object-contain">
-            </div>
-            <div class="bg-white rounded p-1 shadow-sm">
-                <img src="borana trade logo.jfif" alt="Borana Trade" class="h-10 w-auto object-contain">
-            </div>
-        </div>
-
-        <nav class="flex gap-6 text-[11px] md:text-xs font-bold uppercase tracking-widest border-b md:border-b-0 border-blue-800 pb-2 md:pb-0">
-            <button onclick="showAbout()" class="hover:text-yellow-400 transition flex items-center gap-1"><i class="fa fa-info-circle"></i> About</button>
-            <button onclick="showHelp()" class="hover:text-yellow-400 transition flex items-center gap-1"><i class="fa fa-question-circle"></i> Help</button>
-            <button onclick="showPrivacy()" class="hover:text-yellow-400 transition flex items-center gap-1"><i class="fa fa-shield-alt"></i> Privacy</button>
-        </nav>
-
-        <div class="flex gap-3 items-center">
-            <span id="user-tag" class="hidden lg:inline text-[10px] bg-green-600 px-3 py-1 rounded-full font-bold uppercase tracking-widest text-white">Guest View</span>
-            <button id="auth-btn" onclick="toggleLogin()" class="bg-yellow-500 hover:bg-yellow-600 px-4 py-1.5 rounded text-xs transition font-bold shadow-md uppercase text-blue-900">Admin Login</button>
-        </div>
-
-    </div>
-</header>
+        </header>
 
         <div class="flex flex-col md:flex-row min-h-screen">
             <aside class="w-full md:w-64 bg-white shadow-inner border-r border-gray-200 p-4">
@@ -152,16 +147,27 @@
                 </div>
 
                 <div class="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div id="analysis-box" class="bg-blue-900 text-white p-6 rounded-2xl shadow-lg border-l-8 border-yellow-500 relative">
-                        <button id="edit-analysis-btn" onclick="updateAnalysis()" class="hidden absolute top-4 right-4 bg-white/20 hover:bg-white/40 p-2 rounded-lg text-xs">
-                            <i class="fa fa-pen"></i> Edit Analysis
-                        </button>
-                        <h4 class="text-sm font-black uppercase tracking-widest mb-2 opacity-80">Xiinxala Gabaa </h4>
-                        <p class="text-lg font-bold">Haala gabaa <span id="ana-name" class="text-yellow-400">Yabelo</span> har'aa:</p>
-                        <div class="mt-4 flex gap-6">
-                            <div class="text-center"><p class="text-[10px] uppercase opacity-60">Supply</p><p id="ana-supply" class="font-bold">Olaana</p></div>
-                            <div class="text-center"><p class="text-[10px] uppercase opacity-60">Demand</p><p id="ana-demand" class="font-bold text-green-400">Giddu-galeessa</p></div>
-                            <div class="text-center"><p class="text-[10px] uppercase opacity-60">Trend</p><p id="ana-trend" class="font-bold text-yellow-400">Dhaabbataa</p></div>
+                    <div id="analysis-box" class="bg-blue-900 text-white p-6 rounded-2xl shadow-lg border-l-8 border-yellow-500">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="text-sm font-black uppercase tracking-widest opacity-80">Xiinxala Gabaa (Market Analysis)</h4>
+                            <button id="edit-analysis-btn" onclick="updateAnalysis()" class="hidden bg-white/10 hover:bg-white/30 px-3 py-1.5 rounded-lg text-[10px] font-bold border border-white/20 transition">
+                                <i class="fa fa-pen mr-1"></i> EDIT ALL
+                            </button>
+                        </div>
+                        <p class="text-lg font-bold mb-4">Haala gabaa <span id="ana-name" class="text-yellow-400">Yabelo</span> har'aa:</p>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="quickUpdate('supply')" class="text-center p-2 rounded-xl hover:bg-white/10 transition group">
+                                <p class="text-[9px] uppercase opacity-60 mb-1 group-hover:text-yellow-400">Supply</p>
+                                <p id="ana-supply" class="font-bold text-sm">Olaana</p>
+                            </button>
+                            <button onclick="quickUpdate('demand')" class="text-center p-2 rounded-xl hover:bg-white/10 transition group">
+                                <p class="text-[9px] uppercase opacity-60 mb-1 group-hover:text-yellow-400">Demand</p>
+                                <p id="ana-demand" class="font-bold text-green-400 text-sm">Giddu-galeessa</p>
+                            </button>
+                            <button onclick="quickUpdate('trend')" class="text-center p-2 rounded-xl hover:bg-white/10 transition group">
+                                <p class="text-[9px] uppercase opacity-60 mb-1 group-hover:text-yellow-400">Trend</p>
+                                <p id="ana-trend" class="font-bold text-yellow-400 text-sm">Dhaabbataa</p>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -381,14 +387,36 @@
 
         window.updateAnalysis = function() {
             const activeWoreda = document.getElementById('current-location').innerText;
+            if (!currentUser || (currentUser.role !== 'admin' && currentUser.woreda !== activeWoreda)) {
+                alert("Hayyama hin qabdu!"); return;
+            }
             const woredaKey = activeWoreda.replace(/\s+/g, '_');
-            const s = prompt("Supply (Gatii Dhiyeessii):", "Olaana");
-            const d = prompt("Demand (Barbaacha):", "Giddu-galeessa");
-            const t = prompt("Trend (Haala adeemsaa):", "Dhaabbataa");
+            const s = prompt("Supply (Gatii Dhiyeessii):", document.getElementById('ana-supply').innerText);
+            const d = prompt("Demand (Barbaacha):", document.getElementById('ana-demand').innerText);
+            const t = prompt("Trend (Haala adeemsaa):", document.getElementById('ana-trend').innerText);
             
             if(s && d && t) {
                 window.dbSet(window.dbRef(window.db, 'analysis/' + woredaKey), { supply: s, demand: d, trend: t })
                 .then(() => alert("Xiinxalli gabaa uppdate ta'eera!"));
+            }
+        }
+
+        window.quickUpdate = function(type) {
+            const activeWoreda = document.getElementById('current-location').innerText;
+            if (!currentUser || (currentUser.role !== 'admin' && currentUser.woreda !== activeWoreda)) {
+                return; // Only alert in full edit
+            }
+            const woredaKey = activeWoreda.replace(/\s+/g, '_');
+            const currentVal = document.getElementById(`ana-${type}`).innerText;
+            const newVal = prompt(`Update ${type.toUpperCase()}:`, currentVal);
+            
+            if(newVal) {
+                const dataRef = window.dbRef(window.db, 'analysis/' + woredaKey);
+                window.dbOnValue(dataRef, (snap) => {
+                    const data = snap.val() || { supply: "Olaana", demand: "Giddu-galeessa", trend: "Dhaabbataa" };
+                    data[type] = newVal;
+                    window.dbSet(window.dbRef(window.db, 'analysis/' + woredaKey), data);
+                }, { onlyOnce: true });
             }
         }
 
@@ -423,6 +451,7 @@
     </script>
 </body>
 </html>
+
 
 
 
