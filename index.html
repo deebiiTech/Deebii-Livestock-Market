@@ -11,6 +11,8 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
     <style>
         :root { --deebii-blue: #1a237e; --footer-brown: #5d4037; }
         .market-card { transition: all 0.3s ease; border-radius: 1.5rem; }
@@ -130,19 +132,37 @@
                         <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight" id="current-location">Yabelo Woreda</h2>
                         <p class="text-sm text-gray-500 mt-1 italic font-medium">Market Information Dashboard | <span class="text-green-600 font-bold tracking-wide">Helvetas Partner</span></p>
                     </div>
-                    <div class="w-full lg:w-auto">
-                        <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Filter Beeylada</label>
-                        <select id="beeylada-filter" onchange="filterMarket()" class="w-full lg:w-64 p-2.5 border rounded-xl bg-white shadow-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500">
-                            <option value="All">Hunda (All Categories)</option>
-                            <option value="Loon">Loon (Cattle)</option>
-                            <option value="Hoolaa">Hoolaa (Sheep)</option>
-                            <option value="Re'ee">Re'ee (Goats)</option>
-                            <option value="Gaala">Gaala (Camels)</option>
-                            <option value="Lukkuu Naannoo">Lukkuu Naannoo</option>
-                            <option value="Lukkuu Fooyya'aa">Lukkuu Fooyya'aa</option>
-                        </select>
+                    <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                        <button onclick="exportToExcel()" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition">
+                            <i class="fa fa-file-excel"></i> DOWNLOAD EXCEL
+                        </button>
+                        <div class="w-full">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase block mb-1">Filter Beeylada</label>
+                            <select id="beeylada-filter" onchange="filterMarket()" class="w-full lg:w-64 p-2.5 border rounded-xl bg-white shadow-sm font-semibold outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="All">Hunda (All Categories)</option>
+                                <option value="Loon">Loon (Cattle)</option>
+                                <option value="Hoolaa">Hoolaa (Sheep)</option>
+                                <option value="Re'ee">Re'ee (Goats)</option>
+                                <option value="Gaala">Gaala (Camels)</option>
+                                <option value="Lukkuu Naannoo">Lukkuu Naannoo</option>
+                                <option value="Lukkuu Fooyya'aa">Lukkuu Fooyya'aa</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
+
+                <div class="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-blue-900 text-white p-6 rounded-2xl shadow-lg border-l-8 border-yellow-500">
+                        <h4 class="text-sm font-black uppercase tracking-widest mb-2 opacity-80">Xiinxala Gabaa (Market Analysis)</h4>
+                        <p class="text-lg font-bold">Haala gabaa <span id="ana-name" class="text-yellow-400">Yabelo</span> har'aa:</p>
+                        <div class="mt-4 flex gap-6">
+                            <div class="text-center"><p class="text-[10px] uppercase opacity-60">Supply</p><p class="font-bold">Olaana</p></div>
+                            <div class="text-center"><p class="text-[10px] uppercase opacity-60">Demand</p><p class="font-bold text-green-400">Giddu-galeessa</p></div>
+                            <div class="text-center"><p class="text-[10px] uppercase opacity-60">Trend</p><p class="font-bold text-yellow-400">Dhaabbataa</p></div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 pb-20" id="market-grid"></div>
             </main>
         </div>
@@ -177,6 +197,7 @@
 
     <script>
         let currentUser = null;
+        let currentExcelData = []; // Store data for Excel
 
         const users = {
             "admin_master": {pass: "admin@2026", role: "admin", woreda: "All"},
@@ -316,6 +337,7 @@
                     document.querySelectorAll('#woreda-list div').forEach(d => d.classList.remove('sidebar-active'));
                     div.classList.add('sidebar-active');
                     document.getElementById('current-location').innerText = aana;
+                    document.getElementById('ana-name').innerText = aana;
                     filterMarket();
                 };
                 woredaDiv.appendChild(div);
@@ -334,6 +356,8 @@
             window.dbOnValue(dataRef, (snapshot) => {
                 const liveData = snapshot.val() || {};
                 grid.innerHTML = '';
+                currentExcelData = []; // Reset for new selection
+
                 marketDataTemplate.forEach(item => {
                     if (filter !== 'All' && item.category !== filter) return;
                     const subKey = item.sub.replace(/[\/\.]/g, '_');
@@ -341,6 +365,17 @@
                     const canEdit = currentUser && (currentUser.role === 'admin' || currentUser.woreda === activeWoreda);
                     
                     const imgName = categoryIcons[item.category] || 'Logo.PNG';
+
+                    // Collect data for Excel
+                    currentExcelData.push({
+                        "Aanaa": activeWoreda,
+                        "Category": item.category,
+                        "Sub": item.sub,
+                        "Min Price": prices.min,
+                        "Mid Price": prices.mid,
+                        "Max Price": prices.max,
+                        "Date": new Date().toLocaleDateString()
+                    });
                     
                     grid.innerHTML += `
                         <div class="market-card ${item.class} p-6 relative overflow-hidden shadow-sm border border-gray-100">
@@ -371,6 +406,19 @@
                 });
             });
         }
+
+        // Export Function Added
+        window.exportToExcel = function() {
+            if (currentExcelData.length === 0) {
+                alert("Ragaan download ta'u hin jiru!");
+                return;
+            }
+            const ws = XLSX.utils.json_to_sheet(currentExcelData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Gabaa_Data");
+            const activeWoreda = document.getElementById('current-location').innerText;
+            XLSX.writeFile(wb, `Deebii_Market_${activeWoreda}_${new Date().toLocaleDateString()}.xlsx`);
+        };
 
         function updateData(sub) {
             const activeWoreda = document.getElementById('current-location').innerText;
